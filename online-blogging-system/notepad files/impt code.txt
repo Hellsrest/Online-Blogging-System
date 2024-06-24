@@ -1,0 +1,196 @@
+check value of columns of tables
+
+      while($row=$r->fetch_assoc()){
+        echo($row['reciver']);
+        echo("<br>");
+      }
+      echo("<br>");
+      echo("<br>");
+      echo("<br>");
+      while($row1=$r1->fetch_assoc()){
+        echo($row1['uid']);
+        echo("<br>");
+      }
+
+
+
+  $sql2="select * from comment";
+              $r2=$conn->query($sql2);
+              $row2=$r2->fetch_assoc();
+           
+              while($row1=$r1->fetch_assoc()){
+                $r2->data_seek(0);
+                while ($row2 = $r2->fetch_assoc()) {
+                  if ($row2['pid'] == $row1['id']) {
+                    echo($row2['commet']."<br/>");
+                  }
+
+
+//for commenting
+if(isset($_POST["cmt"])){
+  $id=$_POST['id'];
+  $uid=$_SESSION['id'];
+  $cmt=$_POST['comment'];
+  $conn=new mysqli ('localhost:3307','root','','sm');
+  if($conn->error){
+    echo('error');
+  }
+  $sql = "insert into  comment values(0,'$id','$uid','$cmt',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))";
+  $r = $conn->query($sql); 
+  if($r){
+  echo("comment added succesfully");
+      }
+  else{
+  echo("cimment not added succesfully");
+  }
+}
+
+//for displaying comments
+    $sql2="select * from comment";
+    $r2=$conn->query($sql2);
+    $row2=$r2->fetch_assoc();
+ 
+    $sql3="select * from posts";
+      $r3=$conn->query($sql3);
+      $row3=$r3->fetch_assoc();
+
+    while($row3=$r3->fetch_assoc()){
+      $r3->data_seek(0);
+      while ($row2 = $r2->fetch_assoc()) {
+        if ($row2['pid'] == $row3['id']) {
+          echo($row2['pid']."<br/>");
+          echo($row2['commet']."<br/>");
+        }
+      }
+    }
+
+
+
+document.querySelectorAll('.clickable-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+        // Retrieve data attributes from the clicked item
+        const reciver = item.getAttribute('data-reciver');
+       	document.querySelector('form').submit();
+    };
+});
+
+
+<script>
+// Add a click event listener to all elements with the class "clickable-item"
+document.querySelectorAll('.clickable-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+        // Retrieve data attributes from the clicked item
+        const reciver = item.getAttribute('data-reciver');
+        const date = item.getAttribute('data-date');
+
+        // Send the data to your server via an AJAX request or other means
+        // For example, you can use the fetch API to send the data to your server
+        fetch('messaging.php', {
+            method: 'POST',
+            body: JSON.stringify({ reciver, date }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            // Handle the server's response, e.g., show a confirmation to the user
+        })
+        .catch(error => {
+            // Handle errors, e.g., display an error message
+        });
+    });
+});
+</script>
+k ho yo?frfr
+
+
+<script>
+document.querySelectorAll('.clickable-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+        const reciver = item.getAttribute('data-reciver');
+        document.querySelector('form').submit();
+    });
+});
+</script>
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+if (isset($_POST['post'])) {
+  $tpost = $_POST['display'];
+  $id = $_SESSION['id'];
+  if (isset($_FILES['img']) && $_FILES['img']['error'] === 0) {
+    $b = file_get_contents($_FILES['img']['tmp_name']);
+    $img = base64_encode($b);
+    echo("img is submited");
+  } else {
+    $img=NULL;
+    echo("img isnot submited"."<br/>");
+  }
+  $conn = new mysqli("localhost:3307", "root", "", "sm");
+  if ($conn->error) {
+    echo ("No connection :(");
+  }
+  $sql = "insert into `posts` values (0, '$id', '$tpost', '$img',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), 0)";
+  $r = $conn->query($sql);
+  if ($r) {
+    echo ("post added succesfully");
+  } else {
+    echo ("post not added succesfully");
+  }
+}
+
+  <form action="display.php" method="POST" enctype=”multipart/form-data”>
+    <input type="text" name="display" value="text to be displayed to all">
+    <input type="file" name="img">
+    <input type="submit" name="post">
+  </form>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        jmping:
+        echo '<form id="view" action="test-display.php" method="post">';
+        echo '<select id="choice" name="choice" onchange="updateDummyValue()">';
+        echo '<option value="dummy">Choose view</option>';
+        echo '<option value="allh">View Recent Posts</option>';
+        echo '<option value="friends">View Followed Posts</option>';
+        if ($_SESSION['role'] == "mod") {
+            echo '<option value="reports">View Reported Posts</option>';
+        }
+        echo '</select><br><br>';
+        echo '<input type="submit" value="views" style="display: none;">';
+        echo '</form>';
+
+        echo '
+        <script>
+        function submitform() {
+            var x=document.getElementById("view").value;
+            
+            console.log(x);
+        }
+        </script>';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $selectedoption = $_POST["choice"];
+    $sid = $_SESSION['id'];
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    if ($conn->error) {
+        echo ('error');
+    }
+    if ($selectedoption == "allh") {
+        $sql = "select p.*,a.username from posts p join account a on p.poster = a.uid where p.poster != '$sid' and p.status != 'hide';";
+        goto jmping;
+    } elseif ($selectedoption == "friends") {
+        $sql = "select p.*, a.username from posts p join follower f on f.receiver = p.poster join account a on p.poster = a.uid where  p.status != 'hide';";
+        goto jmping;
+    } elseif ($selectedoption == "reports" && $role == "mod") {
+        echo ("mod");
+        goto jmping;
+    } else {
+        echo ("i am not working");
+    }
+}
+
+<script>
+    function updateDummyValue() {
+        var selected = document.getElementById("choice").value;
+        document.getElementById("selectedoption").innerHTML = selected;
+        document.getElementById("view").submit();
+    }
+</script>

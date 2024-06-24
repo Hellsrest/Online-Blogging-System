@@ -1,0 +1,32 @@
+<?php
+$a=[3,99,1,2,4,5];
+$b=array(
+    "name"=>"ram",
+    "age"=>"18",
+    "city"=>"ktm",
+    "test"=>"0"
+);
+sort($a);
+var_dump($a);
+echo("<br>");
+arsort($b);
+var_dump($b);
+echo("<br>");
+//shuffle($b);
+var_dump($b);
+echo("<br>");
+//print_r(each($b)); doesnot work in newer versions
+shuffle($b);
+var_dump($b);
+echo("<br>");
+var_dump(current($a));
+echo("<br>");
+var_dump(next($a));
+echo("<br>");
+var_dump(next($a));
+echo("<br>");
+var_dump(reset($a));
+echo("<br>");
+array_shift($a);
+var_dump($a);
+?>

@@ -1,0 +1,264 @@
+<?php
+$id = $_GET['id'];
+
+//for posting comment
+if (isset($_POST["cmt"])) {
+    //  $status = $_POST['status'];
+    if ($status != "lock") {
+        $id = $_POST['id'];
+        $uid = $_SESSION['id'];
+        $cmt = $_POST['comment'];
+        $url = "test-display-post.php?id=" . $id;
+        $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+        if ($conn->error) {
+            echo ('error');
+        }
+        $sql = "insert into  comment values(0,'$id','$uid','$cmt',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))";
+        $r = $conn->query($sql);
+        $sql = "update posts set comment=comment+1 where id='$id'";
+        $r = $conn->query($sql);
+        if ($r) {
+            echo ("comment added succesfully");
+        }
+    } else {
+        echo ("The Post is Locked");
+        // header("Location: $url");
+    }
+}
+
+/*or seeing all comments
+if (isset($_POST["detailed"])) {
+    $id = $_POST['id'];
+    $status = $_POST['status'];
+    $url = "test-display-post.php?id=" . $id;
+    if ($status != "lock") {
+        $_SESSION['count'] = $_SESSION['count'] + 5;
+        $id = $_POST['id'];
+        header("Location:$url");
+    } else {
+        echo ("test");
+        header("Location:$url");
+        echo ($locka);
+    }
+}
+*/
+//for deleted selected comment
+if (isset($_POST["deletecmt"])) {
+    $id = $_POST['id'];
+    $url = "test-display-post.php?id=" . $id;
+    $cid = ($_POST['cid']);
+    // $cid = $cid+=1;
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    if ($conn->error) {
+        echo ('error');
+    }
+    $sql = "DELETE FROM comment WHERE id='$cid'";
+    $r = $conn->query($sql);
+    $sql = "update posts set comment=comment-1 where id='$id'";
+    $r = $conn->query($sql);
+    echo 'comment deleted successfully.';
+    header("Location: $url");
+} else {
+    //header("location:test-login.php");
+}
+
+if (isset($_POST["editcmt"])) {
+    $id = $_POST['id'];
+    $cid = $_POST['cid'];
+    $actual = $_POST['editfield'];
+    $url = "test-display-post.php?id=" . $id;
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    if ($conn->error) {
+        echo ('error');
+    }
+    $sql = "update comment set comment='$actual' WHERE id='$cid'";
+    $r = $conn->query($sql);
+    header("Location: $url");
+} else {
+    echo ("i m not run");
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css\comment.css">
+</head>
+
+<body>
+    <?php
+    $img = $_SESSION['ppic'];
+    ?>
+    <div id="commentingbox">
+        <div id="commenterppic">
+            <img src="<?php echo $img; ?>" alt="Image not found">
+        </div>
+
+        <form id="all-form" method="POST">
+            <?php echo '<input  type="hidden" name="id" value="' . $id . '">' ?>
+            <div id="textboxdiv">
+                <textarea name="comment" id="maintextbox" rows="6" cols="50"
+                    placeholder="Enter your comment here"></textarea>
+            </div>
+
+            <input type="submit" name="cmt" id="commentbtn">
+            <!-- <td><input type="submit" name="detailed" value="see all comments"></td>-->
+        </form>
+    </div>
+
+    <div id="all-comments">
+        <?php
+        $url = "test-comment.php";
+        $pid = $id;
+        $conn3 = new mysqli("localhost:3307", "root", "", "test-database");
+        $sql3 = "SELECT c.*, a.*,c.id as cid FROM `comment` c JOIN account a ON c.uid = a.uid WHERE pid = '$pid'";
+        $r3 = $conn3->query($sql3);
+        $total = $r3->num_rows;
+
+        echo ("<div id='cmtdisplaybox'>");
+        if ($r3->num_rows > 0) {
+            while ($row3 = $r3->fetch_assoc()) {
+                $cid = $row3['cid'];
+                $comment = $row3['comment'];
+                // echo '    <input   name="cid" value="' . $row3['cid'] . '">';
+                echo ("<div class='onecmt'>");
+
+                echo ("<div class='cmt-ppic'>");
+                echo "<a href='test-account.php?id=" . $row3['uid'] . "'>";
+                echo "<img src='" . $row3['ppic'] . "'></img>";
+                echo ("</a>");
+                echo ("</div>");
+
+                echo ("<div class='commenter-uname'>");
+                echo "<a href='test-account.php?id=" . $row3['uid'] . "'>";
+                echo ($row3['username']);
+                echo ("</a>");
+                echo ("</div>");
+
+
+                echo ("<div class='actual-cmt'>");
+                $actual = nl2br($row3['comment']);
+                echo ($actual);
+                echo ("</div>");
+
+                if ($status != "lock") {
+                    $url = "test-comment.php";
+
+                    echo '<form method="post" action="' . $url . '" id="replybox">';
+                    echo '<input  type="hidden" name="id" value="' . $id . '">';
+                    echo '    <input type="hidden" name="rcmt" id="rcmt" value="' . $row3['comment'] . '">';
+                    echo '    <input  type="hidden" name="rcid" id="rcid" value="' . $row3['cid'] . '">';
+                    echo '</form>';
+               
+                    echo '    <input type="submit" name="replybtn" value="reply" onclick="replybox()"> </input>';
+                    if ($_SESSION['id'] == $row3['pid'] or $_SESSION['id'] == $row3['uid'] or $role == "mod") {
+                        $url = "test-comment.php";
+                        echo ("<div class='deletebtn'>");
+
+                        echo '<form method="post" action="' . $url . '">';
+                        echo '<input  type="hidden" name="id" value="' . $id . '">';
+                        echo '    <input type="hidden" name="deletecmt" value="true">';
+                        echo '    <input  type="hidden" name="cid" value="' . $row3['cid'] . '">';
+                        echo '    <input type="submit" name="deletecmt" value="delete"> </input>';
+                        echo '</form>';
+
+                        echo ("</div>");
+                    }
+                    if ($_SESSION['id'] == $row3['uid']) {
+                        $url = "test-comment.php";
+                        echo '    <button name="herrrrro"  onclick="editbx()">test </button>';
+
+                        // echo ("<div class='editfield'>");
+                        // echo ("</div>");
+        
+                        echo ("<div class='editbtn'>");
+                        echo '<form method="post" action="' . $url . '" id="editform">';
+                        echo '<input type="hidden" name="id" value="' . $id . '">';
+                        echo '<input type="hidden" name="editcmt" value="true">';
+                        echo '<input type="hidden" name="cid" value="' . $cid . '">';
+                        echo '</form>';
+                        echo ("</div>");
+                    }
+                }
+
+                echo ("</div>");
+            }
+        } else {
+            echo ("<div id='elsecase'>");
+            echo ("Be the First to Comment");
+            echo ("</div>");
+        }
+        echo ("</div>");
+
+        ?>
+    </div>
+</body>
+
+<script>
+    let fieldcreated = false;
+
+    function editbx() {
+
+        if (!fieldcreated) {
+            var form = document.getElementById("editform");
+
+            editfield = document.createElement('input');
+            editfield.name = "editfield";
+            editfield.type = "text";
+            editfield.value = <?php echo isset($comment) ? json_encode($comment) : 'there is no id'; ?>;
+            form.appendChild(editfield);
+
+
+            editbtn = document.createElement('input');
+            editbtn.type = "submit";
+            editbtn.value = "Submit Changes";
+            form.appendChild(editbtn);
+            fieldcreated = true;
+
+        } else {
+            var form = document.getElementById("editform");
+            form.removeChild(editfield);
+            form.removeChild(editbtn);
+            fieldcreated = false;
+        }
+    }
+document.addEventListener('DOMContentLoaded', function () {
+    function replybox() {
+        if (!fieldcreated) {
+            var rform = document.getElementById("replybox");
+            rform.addEventListener('submit', function (event) {
+                event.preventDefault();
+            });
+
+            var rcmt = document.getElementById("rcmt").value;
+            var rcid = document.getElementById("rcid").value;
+            console.log(rcmt);
+            console.log(rcid);
+
+            replyfield = document.createElement('input');
+            replyfield.name = "reply";
+            replyfield.type = "text";
+            replyfield.value = <?php echo isset($comment) ? json_encode($comment) : 'there is no id'; ?>;
+            rform.appendChild(replyfield);
+
+            replybtn = document.createElement('input');
+            replybtn.type = "submit";
+            replybtn.value = "Submit Changes";
+            rform.appendChild(replybtn);
+
+            fieldcreated = true;
+        } else {
+            var rform = document.getElementById("replybox");
+            rform.removeChild(replyfield);
+            rform.removeChild(replybtn);
+            fieldcreated = false;
+        }
+    }
+});
+</script>
+
+</html>

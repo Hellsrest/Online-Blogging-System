@@ -1,0 +1,343 @@
+<?php
+date_default_timezone_set('UTC');
+session_start();
+
+if (isset($_POST['register']) && isset($_FILES["image"])) {
+  $email = $_POST['email'];
+  $pass = $_POST['password'];
+  $username = $_POST['username'];
+  $bio = $_POST['bio'];
+  $role = "user";
+
+  $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+  if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+  }
+  $sql = "SELECT * FROM login WHERE email='$email'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    echo "Email already exists";
+    $conn->close();
+    exit;
+  }
+  $upload_error = $_FILES['image']['error'];
+  if ($upload_error === UPLOAD_ERR_OK) {
+    $upload = 'pimgs/';
+    $maxsize = 1024 * 1024;
+    $sizechecker = $_FILES['image']['tmp_name'];
+    $imageinfo = getimagesize($sizechecker);
+    $width = $imageinfo[0];
+    $height = $imageinfo[1];
+    if ($_FILES['image']['size'] > $maxsize) {
+      echo "File size problem";
+      $conn->close();
+      exit;
+    }
+    $new_width = 1080;
+    $new_height = 1080;
+    $src = imagecreatefromjpeg($sizechecker);
+    $dst = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+    $compressed_filename = uniqid() . '.jpg';
+    $compressed_path = $upload . $compressed_filename;
+
+    if (imagejpeg($dst, $compressed_path, 100)) {
+      $ppic = $compressed_path;
+
+      $sql = "INSERT INTO login (email, password, date, username) VALUES ('$email', '$pass', NOW(), '$username')";
+      if ($conn->query($sql) === TRUE) {
+        $sql1 = "SELECT id FROM login WHERE email='$email'";
+        $result1 = $conn->query($sql1);
+        $row1 = $result1->fetch_assoc();
+        $userid = intval($row1['id']);
+        $sql = "INSERT INTO account (uid, username, email, password, bio, ppic, date, role) VALUES ($userid, '$username', '$email', '$pass', '$bio', '$ppic', NOW(), '$role')";
+        if ($conn->query($sql) === TRUE) {
+          echo "User registered and image uploaded successfully.";
+          header("Location: test-login.php");
+          exit;
+        } else {
+          echo "Error: " . $sql . "<br>" . $conn->error;
+        }
+      } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+      }
+    } else {
+      echo "Error compressing and saving the image.";
+    }
+
+    // Clean up resources
+    imagedestroy($src);
+    imagedestroy($dst);
+  } else {
+    echo "Error uploading file: " . $upload_error;
+  }
+
+  $conn->close();
+}
+?>
+
+
+
+<html>
+
+<head>
+  <title>Verse: Register to the Site</title>
+  <link rel="shortcut icon" type="imgs/png" href="imgs/verse-small.png">
+  <link rel="stylesheet" href="css\register.css">
+  <style>
+    .invalid {
+      border-color: red;
+    }
+
+    .valid {
+      border-color: green;
+    }
+    #image-container {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    #selected-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+    }
+  </style>
+</head>
+
+<body id="main-body">
+  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+    <div id="maincontainer">
+      <div id="title">
+        <div id="heading">
+          Register to Verse
+        </div>
+        <div id="titlebody">
+          Verse - The Minimalist Blogging Platform. Clean, distraction-free writing environment to unleash your
+          creativity. Streamlined publishing tools for beautiful, responsive blogs. Join today.
+        </div>
+      </div>
+
+      <div id="email">
+        <div id="emailtext">
+          Email
+        </div>
+        <div id="emaildes">
+          please enter your email here
+        </div>
+        <div id="emailenter">
+          <input type="text" name="email" id="emailfield" placeholder="Enter email" value="example@email.com">
+        </div>
+        <div id="emaildis">
+          <div id="emailret">email must be in example@email.com format</div>
+        </div>
+      </div>
+
+      <div id="username">
+        <div id="usernametext">
+          Username
+        </div>
+        <div id="usernamedes">
+          please enter your username here. This is the name displayed to other users
+        </div>
+        <div id="usernameenter">
+          <input type="text" name="username" id="usernamefield" placeholder="Enter Username">
+        </div>
+        <div id="usernamedis">
+          <div id="usernameret">Username must contain at least 3 numbers.</div>
+        </div>
+      </div>
+
+      <div id="password">
+        <div id="passwordtext">
+          Password
+        </div>
+        <div id="passworddis">
+          please enter your password here.
+        </div>
+        <div id="passwordenter">
+          <input type="password" name="password" id="passwordfield" placeholder="Enter password">
+        </div>
+        <div id="passworddis">
+          <div id="passworddescription">
+            <ul>
+              <li>Contains at least one lowercase letter</li>
+              <li>Contains at least one digit</li>
+              <li>Contains at least one of the special characters: @, $, !, %, *, ?, or &</li>
+              <li>Is at least 6 characters long</li>
+              <li>Contains only lowercase letters, uppercase letters, digits, and the special characters @, $, !, %, *,
+                ?, or &</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="bio">
+        <div id="biotext">
+          Bio
+        </div>
+        <div id="biodis">
+          please enter your bio here.
+        </div>
+        <div id="bioenter">
+          <input type="text" name="bio" id="biofield">
+        </div>
+        <div id="biodis">
+          <div id="bioerr">Bio can only have between 1 and 150 characters</div>
+          <div id="bioret"></div>
+        </div>
+      </div>
+
+      <div id="ppic">
+        <div id="ppictext">Profile Picture</div>
+        <div id="ppicdis">
+          please select your profile picture
+        </div>
+        <div id="ppicenter">
+          <label for="image-upload" id="image-label">Choose a file</label>
+          <input type="file" name="image" accept="image/*" id="image-upload" style="display: none;">
+          <img id="selected-image" style="display: none;">
+        </div>
+      </div>
+
+      <div id="submit button">
+        <input type="submit" name="register" value="Register">
+      </div>
+    </div>
+  </form>
+</body>
+
+<script>
+  var allowsub = 0;
+  var maxAllowsub = 4;
+
+  document.getElementById('image-upload').addEventListener('change', function () {
+      var fileInput = document.getElementById('image-upload');
+      var imageElement = document.getElementById('selected-image');
+      var imagelabel = document.getElementById('image-label');
+
+      if (fileInput.files.length > 0) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (event) {
+          imageElement.src = event.target.result;
+          imageElement.style.display = 'block';
+          imagelabel.innerHTML = " ";
+        };
+
+        reader.readAsDataURL(file);
+        // allowsub++; // Commented out since it's not relevant to the image preview
+        // toggleSubmitButton(); // Commented out since it's not relevant to the image preview
+      } else {
+        imageElement.style.display = 'none';
+      }
+    });
+
+  document.getElementById("emailfield").addEventListener("input", function () {
+    var email = this.value;
+    var emailret = document.getElementById("emailret");
+    var isValidEmail = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email);
+
+    if (email === "") {
+      emailret.innerHTML = "<span style='color: red;'>Please enter Correct Email</span>";
+    } else if (isValidEmail) {
+      emailret.innerHTML = "<span style='color: green;'>&#10004; Valid Email</span>";
+      allowsub++;
+      toggleSubmitButton();
+    } else {
+      emailret.innerHTML = "<span style='color: red;'>&#10006; Invalid Email</span>";
+    }
+  });
+
+  document.getElementById("usernamefield").addEventListener("input", function () {
+    var username = this.value;
+    var usernameret = document.getElementById("usernameret");
+    var isValidUsername = /^(?=.*\d).{3,}$/.test(username);
+
+    if (username === "") {
+      usernameret.innerHTML = "<span style='color: red;'>Please enter Correct Username</span>";
+    } else if (isValidUsername) {
+      usernameret.innerHTML = "<span style='color: green;'>&#10004; Valid Username</span>";
+      allowsub++;
+      toggleSubmitButton();
+    } else {
+      usernameret.innerHTML = "<span style='color: red;'>&#10006; Invalid Username</span>";
+    }
+  });
+
+  document.getElementById("passwordfield").addEventListener("input", function () {
+    var password = this.value;
+    var passwordret = document.getElementById("passwordret");
+    var isValidPassword = /^(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(password);
+
+    if (password === "") {
+      passwordret.innerHTML = "<span style='color: red;'>Please enter Correct Password</span>";
+    } else if (isValidPassword) {
+      passwordret.innerHTML = "<span style='color: green;'>&#10004; Valid Password</span>";
+      allowsub++;
+      toggleSubmitButton();
+    } else {
+      passwordret.innerHTML = "<span style='color: red;'>&#10006; Invalid Password</span>";
+    }
+  });
+
+  document.getElementById("biofield").addEventListener("input", function () {
+    var bioText = this.value;
+    var bioCount = bioText.trim().length;
+    var maxWords = 150;
+    var bioerr = document.getElementById("bioerr");
+    var bioret = document.getElementById("bioret");
+
+    if (bioText === "") {
+      bioerr.innerHTML = "<span style='color: red;'>Please enter a bio</span>";
+    } else {
+      bioerr.innerHTML = "";
+    }
+    if (bioCount > maxWords) {
+      this.value = this.value.substring(0, maxWords);
+      bioCount = maxWords;
+    }
+    allowsub++;
+    toggleSubmitButton();
+    bioret.textContent = bioCount + " / " + maxWords + " characters";
+  });
+
+  function toggleSubmitButton() {
+    var submitButton = document.querySelector('input[type="submit"]');
+    if (allowsub >= maxAllowsub) {
+      submitButton.disabled = false;
+    } else {
+      submitButton.disabled = true;
+    }
+  }
+
+
+</script>
+
+</html>
+
+#actual-text {
+    border: none;
+    border-left: 1px solid black;
+    padding: 5px;
+    width: 80%;
+    height: 100px;
+    resize: none;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    text-decoration: none;
+    color: black;
+    text-align: justify;
+    outline: none;
+}

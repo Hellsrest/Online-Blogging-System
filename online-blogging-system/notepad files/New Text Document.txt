@@ -1,0 +1,871 @@
+INSERT INTO `posts` (`id`, `Title`, `display-text`, `date`, `post`, `poster`, `likes`, `image`,`comment` ,`reports`, `status`) VALUES (0, 'Lorem Ipsum', 'what is a lorem ipsum', current_timestamp(), 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', '64','0','0', 'pimgs/cat.png', '0', 'normal');
+
+  $sql = "select p.*, a.username, c.comment from posts p join account a on p.poster = a.uid join comment c ON p.id = c.pid where p.poster != '$sid' AND p.status != 'hide'";
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Document</title>
+</head>
+<?php
+date_default_timezone_set('UTC');
+session_start();
+$uid = $_SESSION['id'];
+echo '<script>';
+echo 'var uid = ' . json_encode($_SESSION['id']) . ';';
+echo '</script>';
+$maxCount = 100;
+// Displaying all users friends
+$conn = new mysqli("localhost:3307", "root", "", "test-database");
+$sql = "select * from `follower` where sender='$uid'";
+$r = $conn->query($sql);
+$row = $r->fetch_assoc();
+$r->data_seek(0);
+echo ("<br/>");
+$count = 0;
+while ($row = $r->fetch_assoc()) {
+  $count++;
+  // Shows friends id in clickable button form
+  echo '<input type="submit" name="person" id="followed' . $count . '" value="' . $row['receiver'] . '">';
+  echo '</form>';
+}
+
+if (isset ($_POST['send'])) {
+  $msg = $_POST['msg'];
+  $rid = $_POST['rid'];
+  $sid = $_SESSION['id'];
+  $conn = new mysqli("localhost:3307", "root", "", "test-database");
+  if ($conn->error) {
+    echo ("No connection :(");
+  }
+  $sql = "insert into `messages` VALUES (0, '$sid', '$rid', '$msg',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))";
+  $r = $conn->query($sql);
+  if ($r) {
+    echo ("messege added succesfully");
+    header("Location: test-test.php");
+  } else {
+    echo ("messege not added succesfully");
+    header("Location: test-test.php");
+  }
+}
+?>
+
+<body>
+  <div id="msgcontainer"></div>
+  <div id="msgsend"></div>
+</body>
+
+</html>
+
+<script>
+  var maxCount = <?php echo $maxCount; ?>;
+  console.log(uid);
+  var x;
+  for (var i = 1; i <= maxCount; i++) {
+    var id = 'followed' + i;
+    var button = document.getElementById(id);
+    var container = document.getElementById("msgsend");
+    button.addEventListener('click', (function (value) {
+      return function () {
+        x = value;
+        console.log('Value of clicked button: ' + x);
+        fetchmsgs(uid, x);
+
+        //to dyanmically generate msg sending form
+        var existingForm = document.getElementById("dynamic-form");
+        if (existingForm) {
+          container.removeChild(existingForm);
+        }
+        var form = document.createElement("form");
+        form.setAttribute("id", "dynamic-form");
+        form.setAttribute("action", "test-messaging.php");
+        form.setAttribute("method", "post");
+
+        var ridInput = document.createElement("input");
+        ridInput.setAttribute("type", "hidden");
+        ridInput.setAttribute("name", "rid");
+        ridInput.setAttribute("value", x);
+        form.appendChild(ridInput);
+
+        var msgInput = document.createElement("input");
+        msgInput.setAttribute("type", "text");
+        msgInput.setAttribute("name", "msg");
+        msgInput.setAttribute("placeholder", "Enter message here");
+        form.appendChild(msgInput);
+
+        var submitButton = document.createElement("input");
+        submitButton.setAttribute("type", "submit");
+        submitButton.setAttribute("name", "send");
+        form.appendChild(submitButton);
+
+        // Create a div for displaying messages
+        var msgContainer = document.createElement("div");
+        msgContainer.setAttribute("id", "msg-container");
+        form.appendChild(msgContainer);
+
+        // Append the form to the container
+        container.appendChild(form);
+      };
+    })(button.value));
+  }
+  function updatemsgs(messages, userid, rid) {
+    const msgcont = document.getElementById('msgcontainer');
+    msgcont.innerHTML = '';
+    if (Array.isArray(messages)) {
+      if (messages.length === 0) {
+        msgcont.textContent = 'No messages found.';
+      } else {
+        messages.forEach(message => {
+          if ((message.sid == userid && message.rid == rid) || (message.sid == rid && message.rid == userid)) {
+            const msgele = document.createElement('div');
+            msgele.textContent = `${message.id} - ${message.sid} - ${message.rid} - ${message.message}`;
+            msgcont.appendChild(msgele);
+          }
+
+        });
+      }
+    }
+  }
+
+  function fetchmsgs(user_id, rid) {
+    fetch(`test-json.php?user_id=${user_id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(msgs => {
+        updatemsgs(msgs, user_id, rid);
+      })
+      .catch(error => {
+        console.error('Error fetching messages:', error);
+      });
+  }
+
+  setInterval(() => fetchmsgs(uid), 1000);
+  fetchmsgs(uid);
+</script>
+
+      if ($status != "lock") {
+            $id = $_POST['id'];
+            $uid = $_SESSION['id'];
+            $url = "test-display-post.php?id=" . $id;
+            $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+            if ($conn->error) {
+                echo ('error');
+            }
+            $sql = "select likes from posts where id='$id'";
+            $r = $conn->query($sql);
+            $row = $r->fetch_assoc();
+
+            $sql1 = "select `likes` from likes where pid='$id' && uid='$uid' ";
+            $r1 = $conn->query($sql1);
+            $row1 = $r1->fetch_assoc();
+
+            if ($row1 == NULL) {
+                $sql = "insert into likes values(0,'$id','$uid',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),1)";
+                $conn->query($sql);
+            }
+
+            $sql1 = "select `likes` from likes where pid='$id' && uid='$uid' ";
+            $r1 = $conn->query($sql1);
+            $row1 = $r1->fetch_assoc();
+            $x = intval($row1['likes']);
+            echo ($x);
+            if ($x == 1) {
+                if ($row) {
+                    $likes = intval($row['likes']) + 1;
+                    $sql = "update posts SET likes = '$likes' WHERE id = '$id'";
+                    $conn->query($sql);
+                    $sql1 = "update likes SET `likes` = 2 WHERE pid = '$id'";
+                    $conn->query($sql1);
+                    echo ($id);
+                    echo ("post has been liked");
+                    $url = "test-display-post.php?id=" . $id;
+                    header("Location: $url");
+                } else {
+                    echo ("Post not found or an error occurred.");
+                }
+            } else {
+                $likes = intval($row['likes']) - 1;
+                $sql = "update posts SET likes = '$likes' WHERE id = '$id'";
+                $conn->query($sql);
+                $sql1 = "update likes SET `likes` = 1 WHERE pid = '$id'";
+                $conn->query($sql1);
+                echo ($id);
+                echo ("post has been unliked");
+                header("Location: $url");
+            }
+        } else {
+            header("Location: test-display.php");
+        }
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+            <div id="ffp">
+                <div class="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$allposts</div>"; ?> posts
+                </div>
+
+                <div id="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$followed</div>"; ?> follower
+                </div>
+
+                <div id="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$following</div>"; ?> following
+                </div>
+            </div>
+
+=---------------------------------------------------------------------------------------------------------------
+* {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: inherit;
+    text-align: r;
+    text-decoration: none;
+}
+
+body {
+    background-color: #F0F2F5;
+}
+
+/*for top part/user details*/
+#headdiv {
+    margin-bottom: 20%
+}
+
+#mainuser {
+    display: flex;
+    float: left;
+    margin-left: 44%;
+    margin-top: -14%;
+    font-weight: bold;
+    font-size: 33px;
+}
+
+#mainemail {
+    margin-top: -4%;
+    margin-left: 45%;
+}
+
+#mainbio {
+    margin-left: 45%;
+}
+
+#ffp {
+    display: flex;
+    justify-content: space-between;
+    width: 27%;
+    margin-left: 45%;
+    margin-top: -10%;
+    font-size: 20px;
+}
+
+.ffpitem {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#editbutton {
+    margin-top: -10%;
+    margin-left: 63%;
+}
+
+#editbutton button {
+    height: 0%;
+    width: 18%;
+    color: white;
+    background-color: blue;
+    border: 0px;
+    border-radius: 20px;
+}
+
+#followbutton {
+    display: flex;
+    float: left;
+    margin-left: 57%;
+    margin-top: -13%;
+    height: 0%;
+    width: 18%;
+}
+
+#followbutton input {
+    background-color: green;
+    border: 0px;
+    border-radius: 20px;
+
+}
+
+.mainimage {
+    border: 1px solid black;
+    width: 6%;
+    height: auto;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 28%;
+    margin-top: 3%;
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 200px;
+    max-height: 200px;
+    position: relative;
+}
+
+.mainimage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+body {
+    background-color: #ffffff;
+}
+
+#main-body {
+    width: 70%;
+    height: 100%;
+    margin-top: 4.5%;
+}
+
+#display-container{
+    border-top:0px solid #F2F2F2;
+    border-left:1px solid #F2F2F2;
+    border-right:1px solid #F2F2F2;
+    border-bottom:0px solid #F2F2F2;
+}
+
+#one-post {
+    margin-left:8%;
+    background-color: #FFFFFF;
+    width: 80%;
+    height: 20%;
+    border-bottom:1px solid #F2F2F2;
+}
+
+#text-content {
+    color: #FFFFFF;
+    width: 80%;
+
+}
+
+#username {
+    margin-left: 3%;
+    color: blue;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+#time {
+    display: flex;
+    float: left;
+    width: 90.391;
+    color: #AAAAAA;
+    font-size: 12px;
+    margin-left: 13%;
+    margin-top: -1.8%;
+}
+
+#title {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    text-decoration: none;
+    color: black;
+    margin-left: 3%;
+}
+
+#display-text {
+    font-family: Helvetica, Arial, sans-serif;
+    color: black;
+    font-size: 20px;
+    margin-left: 3%;
+}
+
+#like-btn {
+    margin-left:3%;
+}
+
+#like-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 7%;
+    margin-top: -2.6%;
+}
+
+#comment-btn{
+    margin-top:-3.3%;
+    margin-left:12%;
+}
+
+#comment-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 16%;
+    margin-top: -2.8%;
+}
+
+#image {
+    width: 6%; 
+    /* height: auto; */
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    margin-left: 75%;
+    margin-top: -21%;
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 750px;
+    max-height: 750px;
+    overflow: hidden;
+    position: relative;
+}
+
+#image img {
+    width: 100%;
+    height: 100%;
+    border-bottom:1px solid #F2F2F2;
+    /* object-fit: cover; */
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    object-fit: cover;
+}
+
+#ffp {
+    display: flex;
+    justify-content: space-between;
+    width: 27%;
+    margin-left: 45%;
+    margin-top: -10%;
+    font-size: 20px;
+}
+
+.ffpitem {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#modoption {
+    display: flex;
+    justify-content: space-between;
+    width: 23%;
+    margin-left: 45%;
+    margin-top: -7%;
+    font-size: 20px;
+}
+
+.moderatoroption {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#modoptionn {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+
+}
+
+.optionn {
+    padding: 10px;
+    margin: 5px;
+}
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+
+<?php
+include 'test-header.php';
+?>
+
+<head>
+    <link rel="stylesheet" href="css\account.css">
+    <title>Verse: A Modern Blogging Platform</title>
+    <link rel="shortcut icon" type="imgs/png" href="imgs/verse-small.png">
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <title>Document</title>
+</head>
+<?php
+date_default_timezone_set('UTC');
+session_start();
+//echo $_SESSION['id'];
+$role = $_SESSION['role'];
+if (array_key_exists('id', $_GET)) {
+    $id = $_GET['id'];
+    $conn = new mysqli("localhost:3307", "root", "", "test-database");
+    $sql = "select * from account where uid ='$id'";
+    $sql1 = "select * from follower where sender='$id'";
+    $sql2 = "select * from follower where receiver='$id'";
+    $sql3 = "select * from posts where poster='$id'";
+    
+    $r = $conn->query($sql);
+    $r1 = $conn->query($sql1);
+    $r2 = $conn->query($sql2);
+    $r3 = $conn->query($sql3);
+
+    $row = $r->fetch_assoc();
+    $row1 = $r1->fetch_assoc();
+    $row2 = $r2->fetch_assoc();
+    $row3 = $r3->fetch_assoc();
+
+    $uid = ($row['uid']);
+    $username = ($row['username']);
+    $email = ($row['email']);
+    $password = ($row['password']);
+    $bio = ($row['bio']);
+    $strike = ($row['strike']);
+    $imageurl = $row["ppic"];
+
+    if ($row1) {
+        $following = count($row1);
+    } else {
+        $following = 0;
+    }
+
+    if ($row2) {
+        $followed = count($row2);
+    } else {
+        $followed = 0;
+    }
+
+    if ($row3) {
+        $allposts = count($row3);
+    } else {
+        $allposts = 0;
+    }
+}
+
+if (isset($_POST['deletepost'])) {
+    $id = $_POST['id'];
+    echo ($id);
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    $sql = "DELETE FROM posts WHERE id = '$id'";
+    $r = $conn->query($sql);
+    echo 'Post deleted successfully.';
+    header("Location: test-display.php");
+    $conn->close();
+}
+if (isset($_POST['strike'])) {
+    $id = $_POST['id'];
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    $sql = "update account set strike = strike + 1 where uid = '$id';";
+    $r = $conn->query($sql);
+    echo 'User Striked Succesfully';
+    header("Location: test-display.php");
+}
+
+if (isset($_POST['report'])) {
+    $id = $_GET['id'];
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    $sql = "insert into posts reports reports=reports+1 where id='$id'";
+    $r = $conn->query($sql);
+    echo 'post reported succesfully';
+    header("Location: test-display.php");
+    $conn->close();
+}
+
+if (isset($_POST['follow'])) {
+    $id = $_SESSION['id'];
+    $rid = $_POST['id'];
+    $url = "test-account.php?id=" . $rid;
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    if ($conn->error) {
+        echo ('error');
+    }
+    $sql = "select * from follower where sender='$id' and receiver='$rid'";
+    $r = $conn->query($sql);
+    if ($r->num_rows > 0) {
+        $sql = "DELETE FROM follower WHERE sender='$id' and receiver='$rid'";
+        $conn->query($sql);
+        header("Location: $url");
+    } else {
+        $sql = "INSERT INTO `follower` VALUES (0, '$id', '$rid', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))";
+        $conn->query($sql);
+        header("Location: $url");
+    }
+}
+
+if (isset($_POST['finalsolution'])) {
+    $id = $_GET['id'];
+    $url = "test-login.php";
+    $conn = new mysqli("localhost:3307", "root", "", "test-database");
+    $sql = "delete from account where uid='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from login where id='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from comment where uid='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from follower where sender='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from follower where receiver='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from likes where uid='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from messages where sid='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from messages where rid='$id';";
+    $r = $conn->query($sql);
+    $sql = "delete from posts where poster='$id';";
+    $r = $conn->query($sql);
+    echo ("You Are Now Free");
+    header("location:test-login.php");
+    header("Location: $url");
+    exit;
+}
+?>
+
+<body>
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
+        <div>
+            <?php echo '<input type="hidden" name="id" value="' . $id . '">'; ?>
+        </div>
+
+        <div id="headdiv">
+            <div class="mainimage">
+                <?php echo '<img src="' . $imageurl . '" alt="Image">'; ?>
+            </div>
+
+            <div id="mainuser">
+                <?php echo $username; ?>
+            </div>
+
+            <div id="ffp">
+                <div class="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$allposts</div>"; ?> posts
+                </div>
+
+                <div id="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$followed</div>"; ?> follower
+                </div>
+
+                <div id="ffpitem">
+                    <?php echo "<div style='font-weight: 600;'>$following</div>"; ?> following
+                </div>
+            </div>
+
+            <div id='followbutton'>
+                <?php
+                if ($_SESSION['id'] != $uid) {
+                    echo '<input type="submit" name="follow" value="follow"> </input>';
+                }
+                ?>
+            </div>
+
+            <div id="mainbio">
+                <?php echo $bio; ?>
+            </div>
+
+            <div id="mainemail">
+                <?php echo $email; ?>
+            </div>
+
+
+            <?php
+            if ($_SESSION['id'] == $uid) {
+                echo ('<div id="editbutton">');
+                echo "<button>";
+                echo "<a href='test-account-edit.php?id=" . $uid . "'> Edit Profile</a>";
+                echo "</button>";
+                echo ('</div>');
+            }
+            ?>
+        </div>
+
+
+        <?php
+        $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+        if ($conn->error) {
+            echo ('error');
+        }
+        $sql = "select * from account where uid='$id'";
+        $r = $conn->query($sql);
+        $row = $r->fetch_assoc();
+        $strike = $row['strike'];
+
+        echo ("<div id='modoption'>");
+
+        if ($role == "mod") {
+
+            echo ("<div class='moderatoroption'>");
+            echo ($row['strike']." Strikes");
+            echo ("</div>");
+
+            echo ("<div class='moderatoroption'>");
+            $url = "test-display-post.php?id=" . $row['id'];
+            echo '<form method="post" action="' . $url . '">';
+            echo '    <input type="hidden" name="strike" value="true">';
+            echo '    <input type="hidden" name="id" value=' . $id . ' >';
+            echo '    <input type="submit" name="strike" value="strike"> </input>';
+            echo '</form>';
+            echo ("</div>");
+
+            echo("<div class='moderatoroption'>");
+            if($strike >= 3){
+                $url = "test-account.php?id=" . $id;
+                echo '<form method="post" action="' . $url . '">';
+                echo '    <input type="hidden" name="finalsolution" value="true">';
+                echo '    <input type="hidden" name="id" value=' . $id . ' >';
+                echo '    <input type="submit" name="finalsolution" value="delete account"> </input>';
+                echo '</form>';
+            }
+            echo ("</div>");
+        }
+        echo ("</div>");
+        ?>
+
+
+    </form>
+
+    <?php
+    $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
+    if ($conn->error) {
+        echo ('error');
+    }
+    $pid = $_SESSION['id'];
+    $currentTimestamp = time();
+    $sql = "SELECT * FROM posts where poster='$uid'";
+    $ma = $conn->query($sql);
+    if ($ma->num_rows > 0) {
+        while ($row = $ma->fetch_assoc()) {
+            $postTimestamp = strtotime($row['date']);
+            $timeDifference = $currentTimestamp - $postTimestamp;
+            $formattedTime = formatTime($timeDifference);
+
+            echo "<div id='display-container'>";
+
+            echo "<div id='one-post'>";
+            echo "<div id='text-content'>";
+        
+            echo "<div id='username'>";
+            echo "<a href='test-account.php?id={$row['poster']}'>";
+            echo $username. "<br>";
+            echo "</a>";
+            echo "</div>";
+
+            echo "<div id='time'>";
+            echo $formattedTime . " ago<br>";
+            echo "</div>";
+
+            echo "<div id='title'>";
+            echo "<a href='test-display-post.php?id=" . $row['id'] . "'>" . $row['Title'] . "</a>" . "<br>";
+            echo "</div>";
+
+            echo "<div id='display-text'>";
+            echo $row['display-text'];
+            echo "</div>";
+
+            echo "<div id='like'>";
+            echo "<div id='like-btn'>";
+            echo "<box-icon name='like'></box-icon>" ;     
+            echo "</div>";    
+            echo "<div id='like-number'>";
+            echo $row['likes'] . "<br>";
+            echo "</div>";
+            echo "</div>";
+
+            echo "<div id='comment'>";
+            echo "<div id='comment-btn'>";
+            echo "<box-icon name='comment'></box-icon>";
+            echo"</div>";
+            echo "<div id='comment-number'>";
+            echo $row['comment'] . "<br>";
+            echo"</div>";
+            echo "</div>";
+
+            echo "<div id='image'>";
+            echo "<img src='" . $row['image'] . "'";
+            echo "</div>";
+
+            echo "</div>";
+            echo "</div>";
+
+            echo "</div>";
+
+            echo "<div id='report-btn'>";
+            $url = "test-display-post.php?id=" . $row['id'];
+            echo '<form method="post" action="' . $url . '">';
+            echo '    <input type="hidden" name="report" value="true">';
+            echo '    <input type="hidden" name="id" value="' . $row['id'] . '">'; // Add a hidden input for the post ID
+            echo '    <input type="submit" name="report" value="report"> </input>';
+            echo '</form>';
+            echo "</div>";
+            
+            if ($_SESSION['id'] == $row['poster']) {
+                echo "<div id='edit'>";
+                echo "<a href='test-editing.php?id=" . $row['id'] . "' style='margin-left:1%;'> Edit </a>";
+                echo "</div>";
+
+            }
+
+            if ($_SESSION['id'] == $row['poster'] or $role == "mod") {
+                echo "<div id='delete-btn'>";
+                $url = "test-display-post.php?id=" . $row['id'];
+                echo '<form method="post" action="' . $url . '">';
+                echo '    <input type="hidden" name="deletepost" value="true">';
+                echo '    <input type="hidden" name="id" value="' . $row['id'] . '">'; // Add a hidden input for the post ID
+                echo '    <input type="submit" name="deletepost" value="delete"> </input>';
+                echo '</form>';
+                echo "</div>";
+            }
+
+            echo "</div>";
+            if ($_SESSION['id'] == $row['poster'] or $role == "mod") {
+                echo "<div id='reports'>";
+                echo  "Reports"."<br>";
+                echo $row['reports'] ;
+                echo "</div>";
+            } 
+            echo "</div>";
+
+            echo "<br>";
+            echo "<br>";
+        }
+
+
+    }
+
+    function formatTime($timeDifference)
+    {
+        $timePeriods = array(
+            31536000 => 'year',
+            2592000 => 'month',
+            86400 => 'day',
+            3600 => 'hour',
+            60 => 'minute',
+            1 => 'second'
+        );
+        foreach ($timePeriods as $seconds => $period) {
+            $numberOfPeriods = floor($timeDifference / $seconds);
+            if ($numberOfPeriods > 0) {
+                return $numberOfPeriods . ' ' . $period . ($numberOfPeriods > 1 ? 's' : '');
+            }
+        }
+        return 'just now';
+    }
+    ?>
+
+</body>
+
+</html>

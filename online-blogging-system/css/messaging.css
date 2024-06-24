@@ -1,0 +1,80 @@
+#friend-conatiner{
+    margin-top:3%;
+    width:31%;
+    border-right:1px solid   #F2F2F2;;
+}
+
+#one-friend{
+    width:100%;
+    height:auto;
+    border-bottom:1px solid   #F2F2F2;;
+}
+
+.friend-username {
+    display: flex;
+    float: left;
+    font-size: 148px;
+    width: 6%;
+    display: flex;
+    justify-content: center;
+    margin-left: 26.2%;
+    margin-top: -16%;
+    position: relative;
+}
+
+.friend-username button {
+    font-size: 18px;
+    background-color: white;
+    border: 0px solid black;
+}
+
+.friend {
+    width: 6%;
+    height: auto;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1.2%;
+    margin-top: 1%;
+    min-width: 75px;
+    min-height: 75px;
+    max-width: 75px;
+    max-height: 75px;
+    position: relative;
+}
+
+.friend img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: contain;
+}
+
+#recent-msg{
+    display: flex;
+    float: left;
+    margin-left: 22%;
+    margin-top: -9%;
+
+}
+
+#msgcontainer{
+    margin-left:50%;
+}
+
+#msgsend{
+    margin-left:80%;
+}
+
+#other{
+margin-left:50%;
+}
+
+#self{
+    margin-left:80%;
+    }

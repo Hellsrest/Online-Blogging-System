@@ -1,0 +1,61 @@
+Social media?
+
+-(done)
+
+-features
+--scroll down shows new posts
+--can like and comment-(done)
+--friend/follow system-(done)
+--tag system to show liked content
+--msging system-(done)
+
+-NOTES/RULES 
+---alwyas use id to identify user
+---always use display:flex and float:left to allign items
+---always use % value
+---always use width to control size of img
+
+
+-display page
+--add friend-(done)
+--dispaly post-(done)
+--be ablw to post-(done)
+--recivers post should be seen by adder-(done)
+--posts from before adding as friends not displayed(feature:D)-(done)
+--automatically comes in order of timeing(for some reason:D)-(done)
+-- able to like and comment on post-(done)
+
+-profile page
+--general info
+--all posts made by user
+--can edit and change personal data
+--can delete posts from the page
+
+-login-(done)
+--takes email and password for login-(done)
+--takes email password and username for register-(done)
+--only one acc per email -(done)
+--only one acc per username-(done)
+--takes to home page-(done)
+
+-messeging-(done)
+--cretae new table for messiging
+--create multiple tables for storing impt data-(to store who has messeged whith who,store msges etc)
+--when user clicks on msg, query info about who they msged and display
+--when user selects who to chat with from above window,display all previous msges and provide place to msg
+--when user sends msg store to msg db and display to other user
+
+-tag system
+--every post must have only three tags
+--when a user likes content:
+---tag likes will increase by 1
+---how sujest content based on users like?
+
+
+    width: 6%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    margin-left: 93.2%;
+    margin-top: -1%;
+    position: relative;

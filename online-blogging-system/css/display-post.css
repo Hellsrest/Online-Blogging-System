@@ -1,0 +1,182 @@
+* {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:visited {
+  color: inherit;
+  text-align: r;
+  text-decoration: none;
+}
+
+#whole-text {
+  margin-top: 3%;
+}
+
+#title {
+  text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+  margin-bottom: 1.5%;
+}
+
+
+#image {
+  text-align: center;
+  margin-bottom: 2.5%;
+}
+
+#image img {
+  max-width: 1000px;
+  max-height: 1000px;
+  min-width: 500px;
+  min-height: 500px;
+}
+
+#display {
+  text-align: center;
+  font-size: 25px;
+  font-weight: 600;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 2.5%;
+}
+
+#actual {
+  text-align: left;
+  font-size: 20px;
+  color: #000;
+  margin-left: 15%;
+  margin-right: 15%;
+}
+
+#actual p:first-letter {
+  font-size: 50px;
+}
+
+#post-image {
+  width: 6%;
+  height: auto;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 78%;
+  margin-top: 0%;
+  min-width: 100px;
+  min-height: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  position: relative;
+}
+
+#post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#post-username {
+  margin-top: -7%;
+  margin-left: 65%;
+  font-size: 35px;
+}
+
+#post-date {
+  color: gray;
+  margin-left: 65%;
+}
+
+#tubutton {
+  width: 125px;
+  height: 125px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 20%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 40%;
+}
+
+/* Define hover effect */
+#tubutton {
+  background-color: #2980b9;
+  /* Darker blue color on hover */
+}
+
+#like {
+  float: left;
+  display: flex;
+  background-color: #FFFFFF;
+  border: 0px;
+  margin-top: -2%;
+  margin-left: 15%;
+}
+
+#likebtn {
+  margin-top: -48%;
+  width: 73px;
+  height: 100%;
+}
+
+#likes {
+  float: left;
+  display: flex;
+  color: red;
+  font-size: 28px;
+  margin-top: -3%;
+  margin-left: 4%;
+}
+
+#reportbtn {
+  color: red;
+  margin-left: 65%;
+  margin-top: 1%;
+}
+
+#reportbtn input {
+  background-color: red;
+  border:0px ;
+  border-radius:5px;
+}
+
+#actionSelect{
+  display:flex;
+  float:left;
+  margin-left:33%;
+  margin-top:-4.5%;
+}
+
+#koolbtn{
+  display:flex;
+  float:left;
+  margin-left:38%;
+  margin-top:-4.5%;
+}
+
+#rprtnm{
+  display:flex;
+  float:left;
+  margin-left:27%;
+  margin-top:-6%;
+}
+
+#rprtval{
+  display:flex;
+  float:left;
+  margin-left:28.5%;
+  margin-top:-4%;
+}
+
+#deleetebtn{
+    margin-left: 71%;
+    margin-top: -1.5%;
+}

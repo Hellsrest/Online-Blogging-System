@@ -1,0 +1,12 @@
+<?php
+$c=0;
+$a[50];
+for($i=1;$i<=30;$i++){
+    if($i%2==0){
+        $a[$c]=$i;
+        $c++;
+    }
+}
+echo(count($a));
+echo(var_dump($a)+"<br>");
+?>

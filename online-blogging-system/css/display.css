@@ -1,0 +1,142 @@
+* {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: inherit;
+    text-align: r;
+    text-decoration: none;
+}
+
+body {
+    background-color: #ffffff;
+}
+
+#leblogs{
+    display:flex;
+    float:left;
+    margin-left:3%;
+}
+#viewForm{
+    margin-top:3%;
+    margin-left:24%;
+}
+
+#display-container{
+    margin-top:4%;
+}
+
+#username {
+    margin-left: 3%;
+    color: blue;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+#time {
+    display: flex;
+    float: left;
+    width: 90.391;
+    color: #AAAAAA;
+    font-size: 12px;
+    margin-left: 11%;
+    margin-top: -1.2%;
+}
+
+#title {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    text-decoration: none;
+    color: black;
+    margin-left: 3%;
+}
+
+#display-text {
+    font-family: Helvetica, Arial, sans-serif;
+    color: black;
+    font-size: 20px;
+    margin-left: 3%;
+}
+
+#like-btn {
+    margin-left:3%;
+}
+
+#like-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 7%;
+    margin-top: -1.6%;
+}
+
+#comment-btn{
+    margin-top:-1.5%;
+    margin-left:12%;
+}
+
+#comment-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 16%;
+    margin-top: -1.6%;
+}
+
+
+
+#blogimage img{
+    margin-left:40%;
+    margin-top:-11%;
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.bottombuttons {
+    display: inline-block;
+    text-decoration: none;
+    color: #006cb3;
+    padding: 10px 20px;
+    border: thin solid #d4d4d4;
+    transition: all 0.3s;
+    font-size: 18px;
+}
+
+.activebottombuttons {
+    display: inline-block;
+    text-decoration: none;
+    color: #006cb3;
+    padding: 10px 20px;
+    border: thin solid #d4d4d4;
+    transition: all 0.3s;
+    font-size: 18px;
+    background-color: #0d81cd;
+    color: #fff;
+}
+
+.page-info {
+    margin-top: 90px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+.content p {
+    margin-bottom: 15px;
+}
+
+.page-numbers {
+    display: inline-block;
+}

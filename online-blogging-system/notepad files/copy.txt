@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Posts</title>
+</head>
+
+<?php
+date_default_timezone_set('UTC');
+session_start();
+
+//for searching if user exists
+if (isset($_POST['find-friend'])) {
+  $fname = $_POST['fname'];
+  $conn = new mysqli('localhost:3307', 'root', '', 'blogging');
+  if ($conn->error) {
+    echo ('error');
+  }
+  $sql = "select * from login where username='$fname'";
+  $r = $conn->query($sql);
+  if ($r && $r->num_rows > 0) {
+    echo ("friend found");
+  } else {
+    echo ("no found");
+  }
+}
+
+//for adding friend 
+if (isset($_POST['add-friend'])) {
+  $fname = $_POST['fname'];
+  $conn = new mysqli('localhost:3307', 'root', '', 'blogging');
+  if ($conn->error) {
+    echo ('error');
+  }
+  $sql = "select * from login where username='$fname'";
+  $r = $conn->query($sql);
+  $row = $r->fetch_assoc();
+  if ($r && $r->num_rows > 0) {
+    $sid = $_SESSION['id'];
+    $rid = $row['id'];
+    $sql1 = "insert into friends values(0,'$sid','$rid',DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))";
+    $r1 = $conn->query($sql1);
+    echo ("friend added");
+  } else {
+    echo ("user doesnot exist");
+
+  }
+}
+?>
+
+<body>
+ <!--for finding friends -->
+<form action="test3.php" method="POST">
+    <input type="text" name="fname" value="find friend">
+    <input type="submit" name="find-friend">
+  </form>
+
+  <!--for adding friends -->
+  <form action="test3.php" method="POST">
+    <input type="text" name="fname" value="add friend">
+    <input type="submit" name="add-friend">
+  </form>
+
+
+<div id="main-container">
+<div id="post-id"></div><br/>
+<div id="post-title"></div><br/>
+<div id="post-displaytext"></div><br/>
+<div id="post-date"></div><br/>
+<div id="post-likes"></div><br/>
+</div>
+
+<?php
+echo '<script>';
+echo 'var uid = ' . json_encode($_SESSION['id']) . ';';
+echo '</script>';
+?>
+
+<script>
+  function updatePosts(posts) {
+    const mainContainer = document.getElementById('main-container');
+    const id = document.getElementById('post-id');
+    const title = document.getElementById('post-title');
+    const display = document.getElementById('post-displaytext');
+    const date = document.getElementById('post-date');
+    const likes = document.getElementById('post-likes');
+    
+    mainContainer.innerHTML = '';
+    id.innerHTML='';
+    title.innerHTML = '';
+    display.innerHTML = '';
+    date.innerHTML = '';
+    likes.innerHTML = '';
+
+if (Array.isArray(posts)) {
+    if (posts.length === 0) {
+      mainContainer.textContent = 'No posts found.';
+    } else {
+      posts.forEach(post => {
+
+        const idc = document.createElement('div');
+        const titlec = document.createElement('div');
+        const displayc = document.createElement('div');
+        const datec = document.createElement('div');
+        const likesc = document.createElement('div');
+        
+        idc.textContent = `${post.id}`;
+        titlec.textContent = ` ${post.title}`;
+        displayc.textContent=`${post.display}`;
+        datec.textContent=`${post.date}`;
+        likesc.textContent=`${post.likes}`;
+
+        id.appendChild(idc);
+        title.appendChild(titlec);
+        display.appendChild(displayc);
+        date.appendChild(datec);
+        likes.appendChild(likesc);
+
+      });
+    }
+  } 
+  }
+
+  function fetchPosts(user_id) {
+    fetch(`test1.php?user_id=${user_id}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(posts => {
+        updatePosts(posts);
+      })
+      .catch(error => {
+        console.error('Error fetching posts:', error);
+      });
+  }
+  setInterval(() => fetchPosts(uid), 1000);
+  fetchPosts(uid);
+</script>
+
+
+
+</body>
+</html>

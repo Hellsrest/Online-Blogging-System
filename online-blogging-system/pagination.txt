@@ -1,0 +1,154 @@
+<?php
+//include 'test-header.php';
+session_start();
+$sid = $_SESSION['id'];
+$mysqli = new mysqli('localhost:3307', 'root', '', 'test-database');
+if ($mysqli->error) {
+    echo ("No connection :(");
+}
+$records = $mysqli->query("SELECT * FROM comment");
+$nr_of_rows = $records->num_rows;
+$rows_per_page = 4;
+$pages = ceil($nr_of_rows / $rows_per_page);
+$start = 0;
+if (isset($_GET['page-nr'])) {
+    $page = $_GET['page-nr'] - 1;
+    $start = $page * $rows_per_page;
+}
+$result = $mysqli->query("SELECT * FROM comment  LIMIT $start, $rows_per_page");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>php and mysql pagination</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 20px;
+        }
+
+        body {
+            font-family: sans-serif;
+            min-height: 100vh;
+            color: #555;
+            padding: 30px;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            color: #006cb3;
+            padding: 10px 20px;
+            border: thin solid #d4d4d4;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        a.active {
+            background-color: #0d81cd;
+            color: #fff;
+        }
+
+        .page-info {
+            margin-top: 90px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .content p {
+            margin-bottom: 15px;
+        }
+
+        .page-numbers {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <?php
+        while ($row = $result->fetch_assoc()) {
+            ?>
+            <p><?php echo $row['id'] . ' - ' . $row["product_name"] ?></p>
+            <?php
+        }
+        ?>
+    </div>
+    <div class="page-info">
+        <?php
+        if (!isset($_GET['page-nr'])) {
+            $page = 1;
+        } else {
+            $page = $_GET['page-nr'];
+        }
+        ?>
+        Showing <?php echo $page ?> of <?php echo $pages; ?> pages
+    </div>
+    <div class="pagination">
+
+    </div>
+    <a href="?page-nr=1">First</a>
+    <?php
+    if (isset($_GET['page-nr']) && $_GET['page-nr'] > 1) {
+        ?> <a href="?page-nr=<?php echo $_GET['page-nr'] - 1 ?>">Previous</a> <?php
+    } else {
+        ?> <a>Previous</a> <?php
+    }
+    ?>
+    <div class="page-numbers">
+        <?php
+        if (!isset($_GET['page-nr'])) {
+            ?> <a class="active" href="?page-nr=1">1</a> <?php
+             $count_from = 2;
+        } else {
+            $count_from = 1;
+        }
+        ?>
+
+        <?php
+        for ($num = $count_from; $num <= $pages; $num++) {
+            if ($num == @$_GET['page-nr']) {
+                ?> <a class="active" href="?page-nr=<?php echo $num ?>"><?php echo $num ?></a> <?php
+            } else {
+                ?> <a href="?page-nr=<?php echo $num ?>"><?php echo $num ?></a> <?php
+            }
+        }
+        ?>
+    </div>
+    <?php
+    if (!isset($_GET['page-nr'])) {
+        ?> <a class="active" href="?page-nr=1">1</a> <?php
+         $count_from = 2;
+    } else {
+        $count_from = 1;
+    }
+    ?>
+
+
+    <?php
+    if (isset($_GET['page-nr'])) {
+        if ($_GET['page-nr'] >= $pages) {
+            ?> <a>Next</a> <?php
+        } else {
+            ?> <a href="?page-nr=<?php echo $_GET['page-nr'] + 1 ?>">Next</a> <?php
+        }
+    } else {
+        ?> <a href="?page-nr=2">Next</a> <?php
+    }
+    ?>
+    <a href="?page-nr=<?php echo $pages ?>">Last</a>
+</body>
+
+</html>
