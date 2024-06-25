@@ -1,0 +1,309 @@
+* {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: inherit;
+    text-align: r;
+    text-decoration: none;
+}
+
+body {
+    background-color: #F0F2F5;
+}
+
+/*for top part/user details*/
+#headdiv {
+    margin-bottom: 20%
+}
+
+#mainuser {
+    display: flex;
+    float: left;
+    margin-left: 44%;
+    margin-top: -14%;
+    font-weight: bold;
+    font-size: 33px;
+    margin-bottom:-5%;
+}
+
+#mainemail {
+    display: flex;
+    float: left;
+    margin-top: -11%;
+    margin-left: 45%;
+}
+
+#mainbio {
+    display: flex;
+    float: left;
+    margin-top: -9%;
+    margin-left: 45%;
+}
+
+#ffp {
+    display: flex;
+    justify-content: space-between;
+    width: 27%;
+    margin-left: 45%;
+    margin-top: -10%;
+    font-size: 20px;
+}
+
+.ffpitem {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#editbutton {
+    margin-top: -10%;
+    margin-left: 63%;
+}
+
+#editbutton button {
+    height: 0%;
+    width: 18%;
+    color: white;
+    background-color: blue;
+    border: 0px;
+    border-radius: 20px;
+}
+
+#followbutton {
+    display: flex;
+    float: left;
+    margin-left: 57%;
+    margin-top: -13%;
+    height: 0%;
+    width: 18%;
+}
+
+#followbutton input {
+    background-color: green;
+    border: 0px;
+    border-radius: 20px;
+
+}
+
+.mainimage {
+    border: 1px solid black;
+    width: 6%;
+    height: auto;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 28%;
+    margin-top: 3%;
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 200px;
+    max-height: 200px;
+    position: relative;
+}
+
+.mainimage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+body {
+    background-color: #ffffff;
+}
+
+#main-body {
+    width: 70%;
+    height: 100%;
+    margin-top: 4.5%;
+}
+
+#display-container{
+    border-top:0px solid #F2F2F2;
+    border-left:1px solid #F2F2F2;
+    border-right:1px solid #F2F2F2;
+    border-bottom:0px solid #F2F2F2;
+}
+
+#one-post {
+    margin-left:8%;
+    background-color: #FFFFFF;
+    width: 80%;
+    height: 20%;
+    border-bottom:1px solid #F2F2F2;
+}
+
+#text-content {
+    color: #FFFFFF;
+    width: 80%;
+
+}
+
+#username {
+    margin-left: 3%;
+    color: blue;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+#time {
+    display: flex;
+    float: left;
+    width: 90.391;
+    color: #AAAAAA;
+    font-size: 12px;
+    margin-left: 13%;
+    margin-top: -1.8%;
+}
+
+#title {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    text-decoration: none;
+    color: black;
+    margin-left: 3%;
+}
+
+#display-text {
+    font-family: Helvetica, Arial, sans-serif;
+    color: black;
+    font-size: 20px;
+    margin-left: 3%;
+}
+
+#like-btn {
+    margin-left:3%;
+}
+
+#like-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 7%;
+    margin-top: -2.6%;
+}
+
+#comment-btn{
+    margin-top:-3.3%;
+    margin-left:12%;
+}
+
+#comment-number {
+    color: black;
+    font-size: 14px;
+    display: flex;
+    float: left;
+    margin-left: 16%;
+    margin-top: -2.8%;
+}
+
+#image {
+    width: 6%; 
+    /* height: auto; */
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    margin-left: 75%;
+    margin-top: -21%;
+    min-width: 200px;
+    min-height: 200px;
+    max-width: 750px;
+    max-height: 750px;
+    overflow: hidden;
+    position: relative;
+}
+
+#image img {
+    width: 100%;
+    height: 100%;
+    border-bottom:1px solid #F2F2F2;
+    /* object-fit: cover; */
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    object-fit: cover;
+}
+
+#ffp {
+    display: flex;
+    justify-content: space-between;
+    width: 27%;
+    margin-left: 45%;
+    margin-top: -10%;
+    font-size: 20px;
+}
+
+.ffpitem {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#modoption {
+    display: flex;
+    justify-content: space-between;
+    width: 23%;
+    margin-left: 45%;
+    margin-top: -7%;
+    font-size: 20px;
+}
+
+.moderatoroption {
+    width: 100px;
+    height: 100px;
+    text-align: justify;
+}
+
+#modoptionn {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+
+}
+
+.optionn {
+    padding: 10px;
+    margin: 5px;
+}
+
+#edit{
+    display: flex;
+    float: left;
+    margin-left: 73%;
+    margin-top: -15%;
+}
+
+#report-btn{
+    display: flex;
+    float: left;
+    margin-left: 72.5%;
+    margin-top: -13%;
+}
+
+#reports{
+    text-align:justify;
+    display: flex;
+    float: left;
+    margin-left: 72.5%;
+    margin-top: -11%;
+}
+
+#delete-btn{
+    display: flex;
+    float: left;
+    margin-left: 72.5%;
+    margin-top: -8%;
+}

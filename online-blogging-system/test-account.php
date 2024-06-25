@@ -157,7 +157,8 @@ if (isset($_POST['report'])) {
 if (isset($_POST['follow'])) {
     $id = $_SESSION['id'];
     $rid = $_POST['id'];
-    $url = "test-account.php?id=" . $id;
+    $uid = $_POST['id'];
+    $url = "test-account.php?id=" . $uid;
     $conn = new mysqli('localhost:3307', 'root', '', 'test-database');
     if ($conn->error) {
         echo ('error');
@@ -225,11 +226,12 @@ if (isset($_POST['finalsolution'])) {
                 </div>
 
                 <div id="ffpitem">
-                    <?php echo "<div style='font-weight: 600;'>$followed</div>"; ?> follower
+                    <?php echo "<div style='font-weight: 600;'>$followed</div>"; ?><a href="test-follow.php?id=<?php echo $id; ?>&f=0">follower</a>
+                    
                 </div>
 
                 <div id="ffpitem">
-                    <?php echo "<div style='font-weight: 600;'>$following</div>"; ?> following
+                    <?php echo "<div style='font-weight: 600;'>$following</div>"; ?> <a href="test-follow.php?id=<?php echo $id; ?>&f=1">following</a>
                 </div>
             </div>
 
